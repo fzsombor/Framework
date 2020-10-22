@@ -1,14 +1,13 @@
 package hu.fzsombor.connector;
 
-
 import com.jcraft.jsch.*;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class SSHConnector
-{
+public class SSHConnector {
     private static final Logger LOGGER =
             Logger.getLogger(SSHConnector.class.getName());
     private JSch jschSSHChannel;
@@ -20,16 +19,12 @@ public class SSHConnector
     private int intTimeOut;
 
     private void doCommonConstructorActions(String userName,
-                                            String password, String connectionIP, String knownHostsFileName)
-    {
+                                            String password, String connectionIP, String knownHostsFileName) {
         jschSSHChannel = new JSch();
 
-        try
-        {
+        try {
             jschSSHChannel.setKnownHosts(knownHostsFileName);
-        }
-        catch(JSchException jschX)
-        {
+        } catch (JSchException jschX) {
             logError(jschX.getMessage());
         }
 
@@ -39,8 +34,7 @@ public class SSHConnector
     }
 
     public SSHConnector(String userName, String password,
-                      String connectionIP, String knownHostsFileName)
-    {
+                        String connectionIP, String knownHostsFileName) {
         doCommonConstructorActions(userName, password,
                 connectionIP, knownHostsFileName);
         intConnectionPort = 22;
@@ -48,8 +42,7 @@ public class SSHConnector
     }
 
     public SSHConnector(String userName, String password, String connectionIP,
-                      String knownHostsFileName, int connectionPort)
-    {
+                        String knownHostsFileName, int connectionPort) {
         doCommonConstructorActions(userName, password, connectionIP,
                 knownHostsFileName);
         intConnectionPort = connectionPort;
@@ -57,39 +50,31 @@ public class SSHConnector
     }
 
     public SSHConnector(String userName, String password, String connectionIP,
-                      String knownHostsFileName, int connectionPort, int timeOutMilliseconds)
-    {
+                        String knownHostsFileName, int connectionPort, int timeOutMilliseconds) {
         doCommonConstructorActions(userName, password, connectionIP,
                 knownHostsFileName);
         intConnectionPort = connectionPort;
         intTimeOut = timeOutMilliseconds;
     }
 
-    public String connect()
-    {
+    public String connect() {
         String errorMessage = null;
 
-        try
-        {
+        try {
             sesConnection = jschSSHChannel.getSession(strUserName,
                     strConnectionIP, intConnectionPort);
             sesConnection.setPassword(strPassword);
-            // UNCOMMENT THIS FOR TESTING PURPOSES, BUT DO NOT USE IN PRODUCTION
             sesConnection.setConfig("StrictHostKeyChecking", "no");
             sesConnection.connect(intTimeOut);
-        }
-        catch(JSchException jschX)
-        {
+        } catch (JSchException jschX) {
             errorMessage = jschX.getMessage();
         }
 
         return errorMessage;
     }
 
-    private String logError(String errorMessage)
-    {
-        if(errorMessage != null)
-        {
+    private String logError(String errorMessage) {
+        if (errorMessage != null) {
             LOGGER.log(Level.SEVERE, "{0}:{1} - {2}",
                     new Object[]{strConnectionIP, intConnectionPort, errorMessage});
         }
@@ -97,10 +82,8 @@ public class SSHConnector
         return errorMessage;
     }
 
-    private String logWarning(String warnMessage)
-    {
-        if(warnMessage != null)
-        {
+    private String logWarning(String warnMessage) {
+        if (warnMessage != null) {
             LOGGER.log(Level.WARNING, "{0}:{1} - {2}",
                     new Object[]{strConnectionIP, intConnectionPort, warnMessage});
         }
@@ -108,42 +91,31 @@ public class SSHConnector
         return warnMessage;
     }
 
-    public String sendCommand(String command)
-    {
+    public String sendCommand(String command) {
         StringBuilder outputBuffer = new StringBuilder();
 
-        try
-        {
+        try {
             Channel channel = sesConnection.openChannel("exec");
-            ((ChannelExec)channel).setCommand(command);
+            ((ChannelExec) channel).setCommand(command);
             InputStream commandOutput = channel.getInputStream();
             channel.connect();
             int readByte = commandOutput.read();
 
-            while(readByte != 0xffffffff)
-            {
-                outputBuffer.append((char)readByte);
+            while (readByte != 0xffffffff) {
+                outputBuffer.append((char) readByte);
                 readByte = commandOutput.read();
             }
 
             channel.disconnect();
-        }
-        catch(IOException ioX)
-        {
+        } catch (IOException | JSchException ioX) {
             logWarning(ioX.getMessage());
-            return null;
-        }
-        catch(JSchException jschX)
-        {
-            logWarning(jschX.getMessage());
             return null;
         }
 
         return outputBuffer.toString();
     }
 
-    public void close()
-    {
+    public void close() {
         sesConnection.disconnect();
     }
 

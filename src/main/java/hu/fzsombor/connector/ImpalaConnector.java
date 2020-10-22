@@ -1,8 +1,6 @@
 package hu.fzsombor.connector;
 
-
 import com.cloudera.impala.jdbc.DataSource;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;

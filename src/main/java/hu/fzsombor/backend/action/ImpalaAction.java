@@ -1,11 +1,14 @@
 package hu.fzsombor.backend.action;
 
+import hu.fzsombor.Main;
 import hu.fzsombor.connector.ImpalaConnector;
 import org.w3c.dom.Node;
 import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,13 +47,22 @@ public class ImpalaAction {
         }
     }
 
-    public void executeAction() {
+    public void executeAction(String id) {
         ImpalaConnector impalaConnector = new ImpalaConnector();
         impalaConnector.createConnection(host);
-        for (String query: queries) {
+        for (String query : queries) {
+            Instant start = Instant.now();
+            /*=======TIMER START=======*/
             impalaConnector.runQuery(query);
+            Instant end = Instant.now();
+            /*========TIMER END========*/
+            Main.DB.runQuery("insert into action_runs(workload_run_id, `action`, command ,duration, created_at, updated_at) VALUES('" +
+                    id + "', " +
+                    "'Impala query', '" +
+                    query + "', " +
+                    Duration.between(start, end).toMillis() + ",NOW(), NOW());");
         }
-       impalaConnector.closeConnection();
+        impalaConnector.closeConnection();
 
     }
 }

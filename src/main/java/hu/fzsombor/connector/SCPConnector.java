@@ -4,7 +4,6 @@ import com.jcraft.jsch.*;
 
 import java.io.*;
 
-
 public class SCPConnector {
     public void copyTo(String destinationUser, String destinationPassword, String destinationHost, String filePath, String destinationPath) throws Exception {
 

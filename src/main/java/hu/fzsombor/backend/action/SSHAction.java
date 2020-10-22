@@ -1,11 +1,14 @@
 package hu.fzsombor.backend.action;
 
+import hu.fzsombor.Main;
 import hu.fzsombor.connector.SSHConnector;
 import org.w3c.dom.Node;
 import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,7 +57,7 @@ public class SSHAction {
         }
     }
 
-    public void executeAction() {
+    public void executeAction(String id) {
         SSHConnector sshConnector = new SSHConnector(user, password, host, "");
         String errorMessage = sshConnector.connect();
 
@@ -63,8 +66,17 @@ public class SSHAction {
         }
 
         for (String command : commands) {
+            Instant start = Instant.now();
+            /*=======TIMER START=======*/
             String result = sshConnector.sendCommand(command);
             System.out.println(result);
+            /*========TIMER END========*/
+            Instant end = Instant.now();
+            Main.DB.runQuery("insert into action_runs(workload_run_id, `action`, command ,duration, created_at, updated_at) VALUES('"+
+                    id +"', " +
+                    "'SSH command', '"+
+                    command +"', "+
+                    Duration.between(start, end).toMillis() +",NOW(), NOW());");
         }
 
         sshConnector.close();

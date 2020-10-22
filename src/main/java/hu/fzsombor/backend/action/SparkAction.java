@@ -1,12 +1,14 @@
 package hu.fzsombor.backend.action;
 
-import hu.fzsombor.connector.ImpalaConnector;
+import hu.fzsombor.Main;
 import hu.fzsombor.connector.SparkConnector;
 import org.w3c.dom.Node;
 import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,8 +65,17 @@ public class SparkAction {
         }
     }
 
-    public void executeAction() {
+    public void executeAction(String id) {
         SparkConnector sparkConnector = new SparkConnector();
+        Instant start = Instant.now();
+        /*=======TIMER START=======*/
         sparkConnector.submitToSpark(host, user, password, filePath, destinationPath, args);
+        /*========TIMER END========*/
+        Instant end = Instant.now();
+        Main.DB.runQuery("insert into action_runs(workload_run_id, `action`, command ,duration, created_at, updated_at) VALUES('" +
+                id + "', " +
+                "'Spark application', '" +
+                filePath + "', " +
+                Duration.between(start, end).toMillis() + ",NOW(), NOW());");
     }
 }

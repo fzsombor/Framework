@@ -1,11 +1,14 @@
 package hu.fzsombor.backend.action;
 
+import hu.fzsombor.Main;
 import hu.fzsombor.connector.HiveConnector;
 import org.w3c.dom.Node;
 import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,11 +47,20 @@ public class HiveAction {
         }
     }
 
-    public void executeAction() {
+    public void executeAction(String id) {
         HiveConnector hiveConnector = new HiveConnector();
         hiveConnector.createConnection(host);
         for (String query : queries) {
+            Instant start = Instant.now();
+            /*=======TIMER START=======*/
             hiveConnector.runQuery(query);
+            /*========TIMER END========*/
+            Instant end = Instant.now();
+            Main.DB.runQuery("insert into action_runs(workload_run_id, `action`, command ,duration, created_at, updated_at) VALUES('" +
+                    id + "', " +
+                    "'Hive query', '" +
+                    query + "', " +
+                    Duration.between(start, end).toMillis() + ",NOW(), NOW());");
         }
         hiveConnector.closeConnection();
 

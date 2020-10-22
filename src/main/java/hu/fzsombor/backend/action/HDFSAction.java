@@ -1,11 +1,15 @@
 package hu.fzsombor.backend.action;
 
+import hu.fzsombor.Main;
 import hu.fzsombor.connector.HDFSConnector;
-import hu.fzsombor.connector.SCPConnector;
 import org.w3c.dom.Node;
 import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
+
+import java.time.Duration;
+import java.time.Instant;
+
 
 public class HDFSAction {
     private String host;
@@ -53,12 +57,21 @@ public class HDFSAction {
         }
     }
 
-    public void executeAction() {
+    public void executeAction(String id) {
         HDFSConnector hdfsConnector = new HDFSConnector();
+        Instant start = Instant.now();
+        /*=======TIMER START=======*/
         try {
             hdfsConnector.copyToHDFS(user, password, host, filePath, destinationPath);
         } catch (Exception e) {
             e.printStackTrace();
         }
+        /*========TIMER END========*/
+        Instant end = Instant.now();
+        Main.DB.runQuery("insert into action_runs(workload_run_id, `action`, command ,duration, created_at, updated_at) VALUES('" +
+                id + "', " +
+                "'HDFS Put', '" +
+                filePath + "', " +
+                Duration.between(start, end).toMillis() + ",NOW(), NOW());");
     }
 }

@@ -1,6 +1,6 @@
 package hu.fzsombor.backend.action;
 
-import hu.fzsombor.connector.HDFSConnector;
+import hu.fzsombor.Main;
 import org.w3c.dom.Node;
 import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
@@ -9,11 +9,14 @@ import org.w3c.dom.traversal.NodeIterator;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 public class BashAction {
     private String path;
-    private List<String> commands;
+    private List<String> commands = new ArrayList<>();
 
     public BashAction(DocumentTraversal traversal, Node n, int duration, int size, String format) {
         System.out.println("====Creating Bash action====");
@@ -46,18 +49,28 @@ public class BashAction {
         }
     }
 
-    public void executeAction() {
+    public void executeAction(String id) {
         try {
             Process process = Runtime.getRuntime().exec("cd " + path);
             printResults(process);
 
             for (String command : commands) {
+                Instant start = Instant.now();
+                /*=======TIMER START=======*/
                 process = Runtime.getRuntime().exec(command);
                 printResults(process);
+                /*========TIMER END========*/
+                Instant end = Instant.now();
+                Main.DB.runQuery("insert into action_runs(workload_run_id, `action`, command ,duration, created_at, updated_at) VALUES('" +
+                        id + "', " +
+                        "'Bash command', '" +
+                        command + "', " +
+                        Duration.between(start, end).toMillis() + ",NOW(), NOW());");
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+
 
     }
 

@@ -1,5 +1,4 @@
 package hu.fzsombor.connector;
-import org.apache.hive.jdbc.HiveDriver;
 
 import java.sql.*;
 

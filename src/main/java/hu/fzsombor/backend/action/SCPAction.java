@@ -1,10 +1,14 @@
 package hu.fzsombor.backend.action;
 
+import hu.fzsombor.Main;
 import hu.fzsombor.connector.SCPConnector;
 import org.w3c.dom.Node;
 import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
+
+import java.time.Duration;
+import java.time.Instant;
 
 public class SCPAction {
     private String host;
@@ -52,13 +56,21 @@ public class SCPAction {
         }
     }
 
-    public void executeAction() {
+    public void executeAction(String id) {
         SCPConnector scpConnector = new SCPConnector();
-
+        Instant start = Instant.now();
+        /*=======TIMER START=======*/
         try {
             scpConnector.copyTo(user, password, host, filePath, destinationPath);
         } catch (Exception e) {
             e.printStackTrace();
         }
+        /*========TIMER END========*/
+        Instant end = Instant.now();
+        Main.DB.runQuery("insert into action_runs(workload_run_id, `action`, command ,duration, created_at, updated_at) VALUES('" +
+                id + "', " +
+                "'SCP', '" +
+                filePath + "', " +
+                Duration.between(start, end).toMillis() + ",NOW(), NOW());");
     }
 }

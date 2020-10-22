@@ -13,7 +13,7 @@ import java.io.File;
 public class WorkloadParser {
 
 
-    public void readAndExecuteWorkload(String filePath, int size, int duration, String format) {
+    public void readAndExecuteWorkload(String filePath, int size, int duration, String format, String id) {
 
         try {
             File fXmlFile = new File(filePath);
@@ -32,31 +32,31 @@ public class WorkloadParser {
                     switch (n.getNodeName()) {
                         case "ssh":
                             SSHAction sshAction = new SSHAction(traversal, n, duration,size, format);
-                            sshAction.executeAction();
+                            sshAction.executeAction(id);
                             break;
                         case "scp":
                             SCPAction scpAction = new SCPAction(traversal, n, duration, size, format);
-                            scpAction.executeAction();
+                            scpAction.executeAction(id);
                             break;
                         case "impala":
                             ImpalaAction impalaAction = new ImpalaAction(traversal, n, duration, size, format);
-                            impalaAction.executeAction();
+                            impalaAction.executeAction(id);
                             break;
                         case "hive":
                             HiveAction hiveAction = new HiveAction(traversal, n, duration, size, format);
-                            hiveAction.executeAction();
+                            hiveAction.executeAction(id);
                             break;
                         case "spark":
                             SparkAction sparkAction = new SparkAction(traversal, n, duration, size, format);
-                            sparkAction.executeAction();
+                            sparkAction.executeAction(id);
                             break;
                         case "hdfs":
                             HDFSAction hdfsAction = new HDFSAction(traversal, n, duration, size, format);
-                            hdfsAction.executeAction();
+                            hdfsAction.executeAction(id);
                             break;
                         case "bash":
                             BashAction bashAction = new BashAction(traversal, n, duration, size, format);
-                            bashAction.executeAction();
+                            bashAction.executeAction(id);
                             break;
                         default:
                             System.err.println("Wrong XML tag syntax");
