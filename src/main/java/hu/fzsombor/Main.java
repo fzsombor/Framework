@@ -6,6 +6,8 @@ import org.apache.commons.cli.*;
 import java.sql.*;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class Main {
@@ -56,6 +58,7 @@ public class Main {
         }
     }
 
+    public static List<Thread> threads = new ArrayList<>();
 
     public static void main(String[] args) {
 
@@ -80,6 +83,9 @@ public class Main {
 
         Option durationOpt = new Option("d", "duration", true, "The duration of the benchmark. Workloads will restart if the total elapsed time is lower than the duration. After duration elapsed, no new workloads will start, but the already running ones will finish before exiting");
         options.addOption(durationOpt);
+
+        Option clusterOpt = new Option("c", "cluster", true, "Cluster ID if the credentials and hosts are not in the XML");
+        options.addOption(clusterOpt);
 
         CommandLineParser parser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
@@ -113,10 +119,14 @@ public class Main {
                         benchmark_id + ", " +
                         Duration.between(start, end).toMillis() +
                         ", NOW(),NOW());");
+                for (Thread t : threads) {
+                    t.join();
+                }
                 elapsed += Duration.between(start, end).toMillis() / 1000;
+
             }while (duration > elapsed);
 
-        } catch (ParseException e) {
+        } catch (ParseException | InterruptedException e) {
             System.out.println(e.getMessage());
             formatter.printHelp("Big data benchmark framework backend", options);
             System.exit(1);

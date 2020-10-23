@@ -15,6 +15,7 @@ import java.util.List;
 public class HiveAction {
     private String host;
     private List<String> queries;
+    private boolean background = false;
 
     public HiveAction(DocumentTraversal traversal, Node n, int duration, int size, String format) {
         System.out.println("====Creating Hive action====");
@@ -35,6 +36,9 @@ public class HiveAction {
                         break;
                     case "query":
                         queries.add(text);
+                    case "background":
+                        background = Boolean.parseBoolean(text);
+                        break;
                     default:
                         System.err.println("Wrong syntax for Hive action");
                         System.exit(10);
@@ -64,5 +68,35 @@ public class HiveAction {
         }
         hiveConnector.closeConnection();
 
+    }
+    public void executeActionInBackground(String id) {
+        Runnable r = new Runnable() {
+            public void run() {
+                HiveConnector hiveConnector = new HiveConnector();
+                hiveConnector.createConnection(host);
+                for (String query : queries) {
+                    Instant start = Instant.now();
+                    /*=======TIMER START=======*/
+                    hiveConnector.runQuery(query);
+                    /*========TIMER END========*/
+                    Instant end = Instant.now();
+                    Main.DB.runQuery("insert into action_runs(workload_run_id, `action`, command ,duration, created_at, updated_at) VALUES('" +
+                            id + "', " +
+                            "'Hive query', '" +
+                            query + "', " +
+                            Duration.between(start, end).toMillis() + ",NOW(), NOW());");
+                }
+                hiveConnector.closeConnection();
+            }
+        };
+
+        Thread t = new Thread(r);
+        t.start();
+        Main.threads.add(t);
+
+    }
+
+    public boolean isBackground() {
+        return background;
     }
 }

@@ -15,6 +15,7 @@ import java.util.List;
 public class ImpalaAction {
     private String host;
     private List<String> queries;
+    private boolean background = false;
 
     public ImpalaAction(DocumentTraversal traversal, Node n, int duration, int size, String format) {
         System.out.println("====Creating Impala action====");
@@ -35,6 +36,10 @@ public class ImpalaAction {
                         break;
                     case "query":
                         queries.add(text);
+                        break;
+                    case "background":
+                        background = Boolean.parseBoolean(text);
+                        break;
                     default:
                         System.err.println("Wrong syntax for Impala action");
                         System.exit(10);
@@ -64,5 +69,35 @@ public class ImpalaAction {
         }
         impalaConnector.closeConnection();
 
+    }
+    public void executeActionInBackground(String id) {
+        Runnable r = new Runnable() {
+            public void run() {
+                ImpalaConnector impalaConnector = new ImpalaConnector();
+                impalaConnector.createConnection(host);
+                for (String query : queries) {
+                    Instant start = Instant.now();
+                    /*=======TIMER START=======*/
+                    impalaConnector.runQuery(query);
+                    Instant end = Instant.now();
+                    /*========TIMER END========*/
+                    Main.DB.runQuery("insert into action_runs(workload_run_id, `action`, command ,duration, created_at, updated_at) VALUES('" +
+                            id + "', " +
+                            "'Impala query', '" +
+                            query + "', " +
+                            Duration.between(start, end).toMillis() + ",NOW(), NOW());");
+                }
+                impalaConnector.closeConnection();
+            }
+        };
+
+        Thread t = new Thread(r);
+        t.start();
+        Main.threads.add(t);
+
+    }
+
+    public boolean isBackground() {
+        return background;
     }
 }

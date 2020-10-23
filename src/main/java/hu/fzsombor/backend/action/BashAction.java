@@ -17,6 +17,7 @@ import java.util.List;
 public class BashAction {
     private String path;
     private List<String> commands = new ArrayList<>();
+    private boolean background = false;
 
     public BashAction(DocumentTraversal traversal, Node n, int duration, int size, String format) {
         System.out.println("====Creating Bash action====");
@@ -37,6 +38,9 @@ public class BashAction {
                     case "command":
                         commands.add(text);
                         break;
+                    case "background":
+                        background = Boolean.parseBoolean(text);
+                        break;
                     default:
                         System.err.println("Wrong syntax for Bash action");
                         System.exit(10);
@@ -50,29 +54,60 @@ public class BashAction {
     }
 
     public void executeAction(String id) {
-        try {
-            Process process = Runtime.getRuntime().exec("cd " + path);
-            printResults(process);
+                try {
+                    Process process = Runtime.getRuntime().exec("cd " + path);
+                    printResults(process);
 
-            for (String command : commands) {
-                Instant start = Instant.now();
-                /*=======TIMER START=======*/
-                process = Runtime.getRuntime().exec(command);
-                printResults(process);
-                /*========TIMER END========*/
-                Instant end = Instant.now();
-                Main.DB.runQuery("insert into action_runs(workload_run_id, `action`, command ,duration, created_at, updated_at) VALUES('" +
-                        id + "', " +
-                        "'Bash command', '" +
-                        command + "', " +
-                        Duration.between(start, end).toMillis() + ",NOW(), NOW());");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+                    for (String command : commands) {
+                        Instant start = Instant.now();
+                        /*=======TIMER START=======*/
+                        process = Runtime.getRuntime().exec(command);
+                        printResults(process);
+                        /*========TIMER END========*/
+                        Instant end = Instant.now();
+                        Main.DB.runQuery("insert into action_runs(workload_run_id, `action`, command ,duration, created_at, updated_at) VALUES('" +
+                                id + "', " +
+                                "'Bash command', '" +
+                                command + "', " +
+                                Duration.between(start, end).toMillis() + ",NOW(), NOW());");
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
     }
+        public void executeActionInBackground(String id) {
+        Runnable r = new Runnable() {
+            public void run() {
+                try {
+                    Process process = Runtime.getRuntime().exec("cd " + path);
+                    printResults(process);
+
+                    for (String command : commands) {
+                        Instant start = Instant.now();
+                        /*=======TIMER START=======*/
+                        process = Runtime.getRuntime().exec(command);
+                        printResults(process);
+                        /*========TIMER END========*/
+                        Instant end = Instant.now();
+                        Main.DB.runQuery("insert into action_runs(workload_run_id, `action`, command ,duration, created_at, updated_at) VALUES('" +
+                                id + "', " +
+                                "'Bash command', '" +
+                                command + "', " +
+                                Duration.between(start, end).toMillis() + ",NOW(), NOW());");
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        Thread t = new Thread(r);
+        t.start();
+        Main.threads.add(t);
+
+    }
+
 
     public static void printResults(Process process) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -80,5 +115,9 @@ public class BashAction {
         while ((line = reader.readLine()) != null) {
             System.out.println(line);
         }
+    }
+
+    public boolean isBackground() {
+        return background;
     }
 }

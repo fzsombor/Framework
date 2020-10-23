@@ -19,6 +19,7 @@ public class SparkAction {
     private String filePath;
     private String destinationPath;
     private String args;
+    private boolean background = false;
     private List<String> queries;
 
     public SparkAction(DocumentTraversal traversal, Node n, int duration, int size, String format) {
@@ -50,6 +51,9 @@ public class SparkAction {
                     case "args":
                         args = text;
                         break;
+                    case "background":
+                        background = Boolean.parseBoolean(text);
+                        break;
                     case "destination":
                         destinationPath = text;
                         break;
@@ -66,6 +70,7 @@ public class SparkAction {
     }
 
     public void executeAction(String id) {
+
         SparkConnector sparkConnector = new SparkConnector();
         Instant start = Instant.now();
         /*=======TIMER START=======*/
@@ -77,5 +82,34 @@ public class SparkAction {
                 "'Spark application', '" +
                 filePath + "', " +
                 Duration.between(start, end).toMillis() + ",NOW(), NOW());");
+
+    }
+
+    public void executeActionInBackground(String id) {
+        Runnable r = new Runnable() {
+            public void run() {
+                SparkConnector sparkConnector = new SparkConnector();
+                Instant start = Instant.now();
+                /*=======TIMER START=======*/
+                sparkConnector.submitToSpark(host, user, password, filePath, destinationPath, args);
+                /*========TIMER END========*/
+                Instant end = Instant.now();
+                Main.DB.runQuery("insert into action_runs(workload_run_id, `action`, command ,duration, created_at, updated_at) VALUES('" +
+                        id + "', " +
+                        "'Spark application', '" +
+                        filePath + "', " +
+                        Duration.between(start, end).toMillis() + ",NOW(), NOW());");
+            }
+        };
+
+        Thread t = new Thread(r);
+        t.start();
+        Main.threads.add(t);
+
+    }
+
+
+    public boolean isBackground() {
+        return background;
     }
 }

@@ -31,8 +31,11 @@ public class WorkloadParser {
 
                     switch (n.getNodeName()) {
                         case "ssh":
-                            SSHAction sshAction = new SSHAction(traversal, n, duration,size, format);
-                            sshAction.executeAction(id);
+                            SSHAction sshAction = new SSHAction(traversal, n, duration, size, format);
+                            if (sshAction.isBackground())
+                                sshAction.executeActionInBackground(id);
+                            else
+                                sshAction.executeAction(id);
                             break;
                         case "scp":
                             SCPAction scpAction = new SCPAction(traversal, n, duration, size, format);
@@ -40,15 +43,24 @@ public class WorkloadParser {
                             break;
                         case "impala":
                             ImpalaAction impalaAction = new ImpalaAction(traversal, n, duration, size, format);
-                            impalaAction.executeAction(id);
+                            if (impalaAction.isBackground())
+                                impalaAction.executeActionInBackground(id);
+                            else
+                                impalaAction.executeAction(id);
                             break;
                         case "hive":
                             HiveAction hiveAction = new HiveAction(traversal, n, duration, size, format);
-                            hiveAction.executeAction(id);
+                            if (hiveAction.isBackground())
+                                hiveAction.executeActionInBackground(id);
+                            else
+                                hiveAction.executeAction(id);
                             break;
                         case "spark":
                             SparkAction sparkAction = new SparkAction(traversal, n, duration, size, format);
-                            sparkAction.executeAction(id);
+                            if (sparkAction.isBackground())
+                                sparkAction.executeActionInBackground(id);
+                            else
+                                sparkAction.executeAction(id);
                             break;
                         case "hdfs":
                             HDFSAction hdfsAction = new HDFSAction(traversal, n, duration, size, format);
@@ -56,7 +68,10 @@ public class WorkloadParser {
                             break;
                         case "bash":
                             BashAction bashAction = new BashAction(traversal, n, duration, size, format);
-                            bashAction.executeAction(id);
+                            if (bashAction.isBackground())
+                                bashAction.executeActionInBackground(id);
+                            else
+                                bashAction.executeAction(id);
                             break;
                         default:
                             System.err.println("Wrong XML tag syntax");
