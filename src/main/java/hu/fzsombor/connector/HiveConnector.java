@@ -3,7 +3,7 @@ package hu.fzsombor.connector;
 import java.sql.*;
 
 public class HiveConnector {
-    private final static String DRIVER_CLASS = "org.apache.hive.jdbc.HiveDriver";
+    private final static String DRIVER_CLASS = "com.cloudera.hive.jdbc.HS2Driver";
     Connection con;
 
     public void createConnection(String host) {
@@ -28,17 +28,8 @@ public class HiveConnector {
         Statement stmt = null;
         try {
             stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery(sqlStatement);
+            stmt.execute(sqlStatement);
 
-            System.out.println("\n== Begin Query Results ======================");
-
-            // print the results to the console
-            while (rs.next()) {
-                // the example query returns one String column
-                System.out.println(rs.getString(1));
-            }
-
-            System.out.println("== End Query Results =======================\n\n");
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();

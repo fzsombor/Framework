@@ -65,11 +65,11 @@ public class BashAction {
                         printResults(process);
                         /*========TIMER END========*/
                         Instant end = Instant.now();
-                        Main.DB.runQuery("insert into action_runs(workload_run_id, `action`, command ,duration, created_at, updated_at) VALUES('" +
+                        Main.DB.runUpdate("insert into action_runs(workload_run_id, `action`, command ,duration, started, finished) VALUES('" +
                                 id + "', " +
                                 "'Bash command', '" +
                                 command + "', " +
-                                Duration.between(start, end).toMillis() + ",NOW(), NOW());");
+                                Duration.between(start, end).toMillis() + ","+ start + "," + end +");");
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -90,11 +90,11 @@ public class BashAction {
                         printResults(process);
                         /*========TIMER END========*/
                         Instant end = Instant.now();
-                        Main.DB.runQuery("insert into action_runs(workload_run_id, `action`, command ,duration, created_at, updated_at) VALUES('" +
+                        Main.DB.runUpdate("insert into action_runs(workload_run_id, `action`, command ,duration, started, finished) VALUES('" +
                                 id + "', " +
                                 "'Bash command', '" +
                                 command + "', " +
-                                Duration.between(start, end).toMillis() + ",NOW(), NOW());");
+                                Duration.between(start, end).toMillis() + ","+ start + "," + end +");");
                     }
                 } catch (IOException e) {
                     e.printStackTrace();

@@ -13,7 +13,7 @@ import java.util.UUID;
 public class Main {
     public static class DB {
         private static Connection connection = null;
-        private static final String connectionUrl = "jdbc:mysql://localhost:8889/frontend";
+        private static final String connectionUrl = "jdbc:mysql://localhost:8889/frontend?serverTimezone=UTC";
         private static final String connectionUser = "root";
         private static final String connectionPassword = "root";
 
@@ -43,18 +43,23 @@ public class Main {
                 stmt = getConnection().createStatement();
                 rs = stmt.executeQuery(sqlStatement);
 
-                System.out.println("\n== Begin Query Results ======================");
-
-                while (rs.next()) {
-                    System.out.println(rs.getString(1));
-                }
-
-                System.out.println("== End Query Results =======================\n\n");
-
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }
             return rs;
+        }
+
+        public static int runUpdate(String sqlStatement) {
+            Statement stmt = null;
+            int numUpdated = 0;
+            try {
+                stmt = getConnection().createStatement();
+                 numUpdated= stmt.executeUpdate(sqlStatement);
+
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+            return numUpdated;
         }
     }
 
@@ -95,6 +100,7 @@ public class Main {
             cmd = parser.parse(options, args);
             String workload = cmd.getOptionValue("wl");
             int size = Integer.parseInt(cmd.getOptionValue("s"));
+            int cluster = Integer.parseInt(cmd.getOptionValue("c"));
             int duration;
             if (cmd.getOptionValue("d") != null)
                 duration = Integer.parseInt(cmd.getOptionValue("d"));
@@ -109,16 +115,17 @@ public class Main {
             do {
                 String id = UUID.randomUUID().toString();
                 Instant start = Instant.now();
-                size = percentage / 100 * size;
-                workloadParser.readAndExecuteWorkload("workloads/" + workload + "/workload.xml", size, duration, format, id);
+                size = (int)((double) percentage / 100.00 * (double)size);
+                // TODO: read wl from DB
+                workloadParser.readAndExecuteWorkload("workloads/" + workload + "/a.xml", size, duration, format, id, cluster);
                 Instant end = Instant.now();
                 Duration.between(start, end).toMillis();
-                DB.runQuery("INSERT into workload_runs values (id, workload_name, benchmarks_id, duration, created_at, updated_at) VALUES" +
-                        "('" + id + "'," +
+                DB.runUpdate("INSERT into workload_runs(id, workload_name, benchmarks_id, duration, started, finished) VALUES" +
+                        "('" + id + "','" +
                         workload + "', " +
                         benchmark_id + ", " +
                         Duration.between(start, end).toMillis() +
-                        ", NOW(),NOW());");
+                        ",'"+ start.toString().substring(0, start.toString().length() - 1) + "','" + end.toString().substring(0, end.toString().length() - 1)+ "');");
                 for (Thread t : threads) {
                     t.join();
                 }

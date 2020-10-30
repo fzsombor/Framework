@@ -60,11 +60,11 @@ public class HiveAction {
             hiveConnector.runQuery(query);
             /*========TIMER END========*/
             Instant end = Instant.now();
-            Main.DB.runQuery("insert into action_runs(workload_run_id, `action`, command ,duration, created_at, updated_at) VALUES('" +
+            Main.DB.runUpdate("insert into action_runs(workload_run_id, `action`, command ,duration, started, finished) VALUES('" +
                     id + "', " +
                     "'Hive query', '" +
                     query + "', " +
-                    Duration.between(start, end).toMillis() + ",NOW(), NOW());");
+                    Duration.between(start, end).toMillis() + ","+ start + "," + end +");");
         }
         hiveConnector.closeConnection();
 
@@ -80,11 +80,11 @@ public class HiveAction {
                     hiveConnector.runQuery(query);
                     /*========TIMER END========*/
                     Instant end = Instant.now();
-                    Main.DB.runQuery("insert into action_runs(workload_run_id, `action`, command ,duration, created_at, updated_at) VALUES('" +
+                    Main.DB.runUpdate("insert into action_runs(workload_run_id, `action`, command ,duration, started, finished) VALUES('" +
                             id + "', " +
                             "'Hive query', '" +
                             query + "', " +
-                            Duration.between(start, end).toMillis() + ",NOW(), NOW());");
+                            Duration.between(start, end).toMillis() + ","+ start + "," + end +");");
                 }
                 hiveConnector.closeConnection();
             }

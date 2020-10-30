@@ -67,10 +67,10 @@ public class SCPAction {
         }
         /*========TIMER END========*/
         Instant end = Instant.now();
-        Main.DB.runQuery("insert into action_runs(workload_run_id, `action`, command ,duration, created_at, updated_at) VALUES('" +
+        Main.DB.runQuery("insert into action_runs(workload_run_id, `action`, command ,duration, started, finished) VALUES('" +
                 id + "', " +
                 "'SCP', '" +
                 filePath + "', " +
-                Duration.between(start, end).toMillis() + ",NOW(), NOW());");
+                Duration.between(start, end).toMillis() + ","+ start + "," + end +");");
     }
 }

@@ -96,7 +96,7 @@ public class SSHConnector {
 
         try {
             Channel channel = sesConnection.openChannel("exec");
-            ((ChannelExec) channel).setCommand(command);
+            ((ChannelExec) channel).setCommand(command + " 2>&1");
             InputStream commandOutput = channel.getInputStream();
             channel.connect();
             int readByte = commandOutput.read();

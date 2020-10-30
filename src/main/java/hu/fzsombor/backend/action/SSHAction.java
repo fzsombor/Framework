@@ -7,6 +7,8 @@ import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -19,7 +21,7 @@ public class SSHAction {
     private boolean background = false;
     private List<String> commands;
 
-    public SSHAction(DocumentTraversal traversal, Node n, int duration, int size, String format) {
+    public SSHAction(DocumentTraversal traversal, Node n, int duration, int size, String format, int cluster) throws SQLException {
         System.out.println("====Creating SSH action====");
         commands = new ArrayList<>();
         NodeIterator iter = traversal.createNodeIterator(
@@ -29,8 +31,8 @@ public class SSHAction {
             if (node.getNodeName() != null) {
                 String name = node.getNodeName();
                 String text = node.getTextContent().trim();
-                text = text.replaceAll("$scale", String.valueOf(size));
-                text = text.replaceAll("$format", format);
+                text = text.replaceAll("\\$scale", String.valueOf(size));
+                text = text.replaceAll("\\$format", format);
 
                 switch (name) {
                     case "host":
@@ -59,34 +61,50 @@ public class SSHAction {
                 }
             }
         }
+
+        if (host == null) {
+            ResultSet result = Main.DB.runQuery("select * from clusters where id=" + cluster + ";");
+            result.next();
+            host = result.getString("ssh_host");
+            user = result.getString("ssh_user");
+            password = result.getString("ssh_password");
+
+
+        }
+
+
     }
+
     public void executeAction(String id) {
 
+        System.out.println("====Starting SSH action====");
+        SSHConnector sshConnector = new SSHConnector(user, password, host, "");
+        String errorMessage = sshConnector.connect();
 
-                SSHConnector sshConnector = new SSHConnector(user, password, host, "");
-                String errorMessage = sshConnector.connect();
+        if (errorMessage != null) {
+            System.out.println(errorMessage);
+        }
 
-                if (errorMessage != null) {
-                    System.out.println(errorMessage);
-                }
+        for (String command : commands) {
+            System.out.println("Executing command: "+ command);
+            Instant start = Instant.now();
+            /*=======TIMER START=======*/
+            String result = sshConnector.sendCommand(command);
+            System.out.println(result);
+            /*========TIMER END========*/
+            Instant end = Instant.now();
+            Main.DB.runUpdate("insert into action_runs(workload_run_id, `action`, command ,duration, started, finished) VALUES('" +
+                    id + "', " +
+                    "'SSH command', '" +
+                    command + "', " +
+                    Duration.between(start, end).toMillis() + ","+ start + "," + end +");");
+            System.out.println("Took: " + Duration.between(start, end).toMillis() + "ms");
+        }
 
-                for (String command : commands) {
-                    Instant start = Instant.now();
-                    /*=======TIMER START=======*/
-                    String result = sshConnector.sendCommand(command);
-                    System.out.println(result);
-                    /*========TIMER END========*/
-                    Instant end = Instant.now();
-                    Main.DB.runQuery("insert into action_runs(workload_run_id, `action`, command ,duration, created_at, updated_at) VALUES('"+
-                            id +"', " +
-                            "'SSH command', '"+
-                            command +"', "+
-                            Duration.between(start, end).toMillis() +",NOW(), NOW());");
-                }
-
-                sshConnector.close();
+        sshConnector.close();
 
     }
+
     public void executeActionInBackground(String id) {
 
         Runnable r = new Runnable() {
@@ -105,11 +123,11 @@ public class SSHAction {
                     System.out.println(result);
                     /*========TIMER END========*/
                     Instant end = Instant.now();
-                    Main.DB.runQuery("insert into action_runs(workload_run_id, `action`, command ,duration, created_at, updated_at) VALUES('"+
-                            id +"', " +
-                            "'SSH command', '"+
-                            command +"', "+
-                            Duration.between(start, end).toMillis() +",NOW(), NOW());");
+                    Main.DB.runUpdate("insert into action_runs(workload_run_id, `action`, command ,duration, started, finished) VALUES('" +
+                            id + "', " +
+                            "'SSH command', '" +
+                            command + "', " +
+                            Duration.between(start, end).toMillis() + "," + start + "," + end + ");");
                 }
 
                 sshConnector.close();

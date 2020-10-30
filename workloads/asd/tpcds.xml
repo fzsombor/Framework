@@ -1,0 +1,116 @@
+<?xml version="1.0"?>
+<workflow>
+	<ssh>
+		<command>sudo yum -y install java-1.8.0-openjdk-devel maven git gcc make flex bison byacc curl unzip patch</command>
+		<command>git clone https://github.com/fzsombor/tpcds-gen /tmp/tpcds-gen</command>
+		<command>make -C /tmp/tpcds-gen/tpcds-gen/</command>
+		<command>chmod +x /tmp/tpcds-gen/tpcds-gen/target/tpcds-gen-1.0-SNAPSHOT.jar</command>
+		<command>cd /tmp/tpcds-gen/tpcds-gen/; yarn jar target/tpcds-gen-1.0-SNAPSHOT.jar -d /tmp/tpc-ds/sf10000/ -p 100 -s $scale</command>
+		<command>sudo -u hdfs hdfs dfs -chown -R hive /tmp/tpc-ds/sf10000</command>
+		<command>cd /tmp/tpcds-gen/scripts; impala-shell -f drop.sql</command>
+		<command>cd /tmp/tpcds-gen/scripts; impala-shell -f impala-external.sql</command>
+		<command>cd /tmp/tpcds-gen/scripts; impala-shell -f impala-$format.sql</command>
+		<command>cd /tmp/tpcds-gen/scripts; impala-shell -f impala-insert.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query1.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query2.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query3.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query4.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query5.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query6.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query7.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query8.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query9.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query10a.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query11.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query12.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query13.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query14.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query15.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query16.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query17.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query18.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query19.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query20.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query21.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query22.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query23.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query24.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query25.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query26.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query27.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query28.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query29.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query30.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query31.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query32.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query33.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query34.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query35.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query36.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query37.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query38.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query39.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query40.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query41.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query42.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query43.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query44.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query45.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query46.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query47.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query48.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query49.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query50.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query51.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query52.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query53.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query54.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query55.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query56.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query57.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query58.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query59.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query60.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query61.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query62.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query63.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query64.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query65.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query66.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query67.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query68.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query69.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query70.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query71.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query72.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query73.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query74.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query75.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query76.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query77.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query78.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query79.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query80.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query81.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query82.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query83.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query84.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query85.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query86.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query87.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query88.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query89.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query90.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query91.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query92.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query93.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query94.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query95.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query96.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query97.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query98.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query99.sql</command>
+		<command>cd /tmp/tpcds-gen/queries; impala-shell -d  tpcds_10000_parquet -f query100.sql</command>
+	</ssh>
+</workflow>
+

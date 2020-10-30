@@ -77,11 +77,11 @@ public class SparkAction {
         sparkConnector.submitToSpark(host, user, password, filePath, destinationPath, args);
         /*========TIMER END========*/
         Instant end = Instant.now();
-        Main.DB.runQuery("insert into action_runs(workload_run_id, `action`, command ,duration, created_at, updated_at) VALUES('" +
+        Main.DB.runUpdate("insert into action_runs(workload_run_id, `action`, command ,duration, started, finished) VALUES('" +
                 id + "', " +
                 "'Spark application', '" +
                 filePath + "', " +
-                Duration.between(start, end).toMillis() + ",NOW(), NOW());");
+                Duration.between(start, end).toMillis() + ","+ start + "," + end +");");
 
     }
 
@@ -94,11 +94,11 @@ public class SparkAction {
                 sparkConnector.submitToSpark(host, user, password, filePath, destinationPath, args);
                 /*========TIMER END========*/
                 Instant end = Instant.now();
-                Main.DB.runQuery("insert into action_runs(workload_run_id, `action`, command ,duration, created_at, updated_at) VALUES('" +
+                Main.DB.runUpdate("insert into action_runs(workload_run_id, `action`, command ,duration, started, finished) VALUES('" +
                         id + "', " +
                         "'Spark application', '" +
                         filePath + "', " +
-                        Duration.between(start, end).toMillis() + ",NOW(), NOW());");
+                        Duration.between(start, end).toMillis() + ","+ start + "," + end +");");
             }
         };
 

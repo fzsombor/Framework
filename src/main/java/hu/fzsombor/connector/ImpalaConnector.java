@@ -29,17 +29,7 @@ public class ImpalaConnector {
         Statement stmt = null;
         try {
             stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery(sqlStatement);
-
-            System.out.println("\n== Begin Query Results ======================");
-
-            // print the results to the console
-            while (rs.next()) {
-                // the example query returns one String column
-                System.out.println(rs.getString(1));
-            }
-
-            System.out.println("== End Query Results =======================\n\n");
+            stmt.execute(sqlStatement);
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();

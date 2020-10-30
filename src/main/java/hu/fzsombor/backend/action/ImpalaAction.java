@@ -61,11 +61,11 @@ public class ImpalaAction {
             impalaConnector.runQuery(query);
             Instant end = Instant.now();
             /*========TIMER END========*/
-            Main.DB.runQuery("insert into action_runs(workload_run_id, `action`, command ,duration, created_at, updated_at) VALUES('" +
+            Main.DB.runUpdate("insert into action_runs(workload_run_id, `action`, command ,duration, started, finished) VALUES('" +
                     id + "', " +
                     "'Impala query', '" +
                     query + "', " +
-                    Duration.between(start, end).toMillis() + ",NOW(), NOW());");
+                    Duration.between(start, end).toMillis() + ","+ start + "," + end +");");
         }
         impalaConnector.closeConnection();
 
@@ -81,11 +81,11 @@ public class ImpalaAction {
                     impalaConnector.runQuery(query);
                     Instant end = Instant.now();
                     /*========TIMER END========*/
-                    Main.DB.runQuery("insert into action_runs(workload_run_id, `action`, command ,duration, created_at, updated_at) VALUES('" +
+                    Main.DB.runUpdate("insert into action_runs(workload_run_id, `action`, command ,duration, started, finished) VALUES('" +
                             id + "', " +
                             "'Impala query', '" +
                             query + "', " +
-                            Duration.between(start, end).toMillis() + ",NOW(), NOW());");
+                            Duration.between(start, end).toMillis() + ","+ start + "," + end +");");
                 }
                 impalaConnector.closeConnection();
             }

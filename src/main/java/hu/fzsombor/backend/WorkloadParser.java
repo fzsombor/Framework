@@ -13,7 +13,7 @@ import java.io.File;
 public class WorkloadParser {
 
 
-    public void readAndExecuteWorkload(String filePath, int size, int duration, String format, String id) {
+    public void readAndExecuteWorkload(String filePath, int size, int duration, String format, String id, int cluster) {
 
         try {
             File fXmlFile = new File(filePath);
@@ -31,7 +31,7 @@ public class WorkloadParser {
 
                     switch (n.getNodeName()) {
                         case "ssh":
-                            SSHAction sshAction = new SSHAction(traversal, n, duration, size, format);
+                            SSHAction sshAction = new SSHAction(traversal, n, duration, size, format, cluster);
                             if (sshAction.isBackground())
                                 sshAction.executeActionInBackground(id);
                             else
